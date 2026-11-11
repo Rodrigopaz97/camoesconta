@@ -438,15 +438,12 @@ footer{border-top:1px solid rgba(201,154,62,.4)}
   function supported(l){for(var i=0;i<LANGS.length;i++)if(LANGS[i][0]===l)return true;return false}
   function setLang(l,save){
     if(!supported(l))l="pt";lang=l;
-    if(save){try{localStorage.setItem("cc_lang",l)}catch(e){}}
     applyStatic();filters();route(true);
   }
   function initialLang(){
+    /* abre sempre em português; só um link com ?lang=en abre noutra língua */
     var q="";try{q=new URLSearchParams(location.search).get("lang")||""}catch(e){}
-    if(supported(q))return q;
-    try{var s=localStorage.getItem("cc_lang");if(supported(s))return s}catch(e){}
-    var nav=(navigator.language||"pt").slice(0,2).toLowerCase();
-    return supported(nav)?nav:"pt";
+    return supported(q)?q:"pt";
   }
 
   /* ===== grelhas da página inicial ===== */
