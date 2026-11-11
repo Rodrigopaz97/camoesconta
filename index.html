@@ -216,7 +216,7 @@ footer{border-top:1px solid rgba(201,154,62,.4)}
 .lbtn[aria-pressed="true"]{background:var(--goldgrad);color:var(--ink-on-gold)}
 .lbtn:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
 .hnote{margin:16px 0 0;font-size:13px;color:var(--muted)}
-.hnote[hidden]{display:none}
+[hidden]{display:none!important}
 </style>
 
 </head>
@@ -375,13 +375,7 @@ footer{border-top:1px solid rgba(201,154,62,.4)}
   /* ===== EPISÓDIOS: dados comuns ===== */
   var EPS=[
    {id:"ep1",n:1,pub:true,region:"lisboa",lat:38.80,lon:-9.38,yt:"https://www.youtube.com/shorts/TbC5LKBwckk"},
-   {id:"ep2",n:2,date:"2026-11-18T09:00:00Z",region:"",yt:""},
-   {id:"ep3",n:3,date:"2026-11-25T09:00:00Z",region:"lisboa",lat:38.797,lon:-9.395},
-   {id:"ep4",n:4,date:"2026-12-02T09:00:00Z",region:""},
-   {id:"ep5",n:5,date:"2026-12-09T09:00:00Z",region:"centro",lat:39.55,lon:-8.99},
-   {id:"ep6",n:6,date:"2026-12-16T09:00:00Z",region:"centro",lat:39.60,lon:-9.07},
-   {id:"ep7",n:7,date:"2026-12-23T09:00:00Z",region:"lisboa",lat:38.795,lon:-9.41},
-   {id:"ep8",n:8,date:"2026-12-30T09:00:00Z",region:""}
+   {id:"ep2",n:2,date:"2026-11-18T09:00:00Z",region:"",yt:""}
   ];
   /* ===== EPISÓDIOS: textos por idioma ===== */
   var TXT={
@@ -412,13 +406,7 @@ footer{border-top:1px solid rgba(201,154,62,.4)}
       ["What we know and what we don't","<ul><li>The legend is medieval and has a written version. That does not make it historical fact.</li><li>The idea of a supernatural woman who marries a mortal and vanishes when a rule is broken exists in many European cultures.</li><li>Those who tell it today add or drop details. Here we follow the essentials of the written sources.</li></ul>"]],
      q2:"Would you trust the lady of the rock? Yes or no?",
      src:["<i>Livro de Linhagens do Conde D. Pedro</i> (Book of Lineages of Count Pedro Afonso), c. 1340.","Alexandre Herculano, <i>Lendas e Narrativas</i>."]}
-   },
-   ep3:{pt:{t:"A Quinta da Regaleira",place:"Sintra",teaser:"Um poço que desce ao coração de Sintra."},en:{t:"Quinta da Regaleira",place:"Sintra",teaser:"A well that descends into the heart of Sintra."}},
-   ep4:{pt:{t:"A Moura Salúquia",place:"",teaser:"Uma moura, um encanto e uma promessa."},en:{t:"The Moorish Maiden Salúquia",place:"",teaser:"A Moorish maiden, an enchantment and a promise."}},
-   ep5:{pt:{t:"A Padeira de Aljubarrota",place:"Aljubarrota",teaser:"Uma mulher, uma pá e uma batalha."},en:{t:"The Baker of Aljubarrota",place:"Aljubarrota",teaser:"A woman, a baker's peel and a battle."}},
-   ep6:{pt:{t:"D. Fuas Roupinho",place:"Nazaré",teaser:"Um cavaleiro, a névoa e um precipício."},en:{t:"D. Fuas Roupinho",place:"Nazaré",teaser:"A knight, the mist and a cliff."}},
-   ep7:{pt:{t:"O Palácio de Seteais",place:"Sintra",teaser:"Um palácio com nome de suspiro."},en:{t:"Seteais Palace",place:"Sintra",teaser:"A palace named after a sigh."}},
-   ep8:{pt:{t:"D. Sebastião",place:"",teaser:"O rei que nunca voltou."},en:{t:"King Sebastian",place:"",teaser:"The king who never came back."}}
+   }
   };
   var BY={};EPS.forEach(function(e){BY[e.id]=e});
   function tx(e){var o=TXT[e.id],a=o[lang]||{},b=o.pt,r={};for(var k in b)r[k]=b[k];for(var k2 in a)r[k2]=a[k2];return r}
@@ -534,8 +522,8 @@ footer{border-top:1px solid rgba(201,154,62,.4)}
   var defs=el("defs",{},svg),lg=el("linearGradient",{id:"landg",x1:0,y1:0,x2:1,y2:1},defs);
   el("stop",{offset:"0","stop-color":"#173f57"},lg);el("stop",{offset:"1","stop-color":"#0f2c3f"},lg);
   el("path",{d:d,"class":"land"},svg);
-  var cfg={ep1:{nx:-7,ny:-9,lx:-62,ly:-14,t:"Teresa Fidalgo",ld:1},ep3:{nx:3,ny:0,lx:-70,ly:5,t:"Regaleira",ld:1},ep7:{nx:-3,ny:9,lx:-70,ly:20,t:"Seteais",ld:1},
-    ep5:{nx:12,ny:3,lx:18,ly:4,a:"start",t:"Aljubarrota"},ep6:{nx:0,ny:-3,lx:-14,ly:3,t:"Nazaré"}};
+  var cfg={ep1:{nx:-7,ny:-9,lx:-62,ly:-14,t:"Teresa Fidalgo",ld:1}};
+  /* para cada episódio novo com local no mapa, acrescenta aqui o seu marcador (nx/ny ajustam o ponto, lx/ly o nome) */
   var pins={},items={},cur=null,F={st:"all",rg:"all"};
   EPS.forEach(function(x){
     var li=document.createElement("li"),b=document.createElement("button");
@@ -579,6 +567,7 @@ footer{border-top:1px solid rgba(201,154,62,.4)}
   }
   var fbound=false;
   function filters(){
+    fbox.hidden=EPS.length<5;
     var regs=[];EPS.forEach(function(x){if(x.region&&regs.indexOf(x.region)<0)regs.push(x.region)});
     var h="";[["st","all","f_all"],["st","pub","f_pub"],["st","soon","f_soon"]].forEach(function(f){h+='<button type="button" class="fbtn" data-k="'+f[0]+'" data-v="'+f[1]+'">'+T(f[2])+'</button>'});
     if(regs.length>1){h+='<span class="fsep" aria-hidden="true"></span><button type="button" class="fbtn" data-k="rg" data-v="all">'+T("f_country")+'</button>';regs.forEach(function(r){h+='<button type="button" class="fbtn" data-k="rg" data-v="'+r+'">'+T("reg_"+r)+'</button>'})}
