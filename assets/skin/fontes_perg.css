@@ -1,0 +1,31 @@
+/* Fontes em pergaminho 3D: topo, meio (repete) e fundo. Variante em html.pa / pb / pc */
+.fontes{display:block;max-width:640px;margin:0 auto;padding:0;--w:min(100cqw,640px);--ht:calc(var(--w) * var(--rt,.29) * .45);--hb:calc(var(--w) * var(--rb,.29) * .45);background-repeat:no-repeat;background-size:100% calc(100% - var(--ht) - var(--hb));background-position:0 var(--ht);filter:drop-shadow(0 18px 22px rgba(0,0,0,.5))}
+.fontes::before,.fontes::after{content:"";display:block;background-size:100% 100%;background-repeat:no-repeat}
+.fontes .fbody>div{background:none;border:0;border-radius:0;box-shadow:none;padding:0 0 16px;margin:0 17% 18px;border-bottom:1px solid rgba(139,90,43,.45);color:#2b1d0e}
+.fontes .fbody>div:last-of-type{border-bottom:0;margin-bottom:0}
+.fontes h3{font-size:26px;color:#3a230e;margin:0 0 6px}
+.fontes p{color:#2b1d0e;font-size:19px}
+html.pa .fontes{background-image:url(perg_a_mid.webp)}html.pa .fontes::before{aspect-ratio:1000/290;background-image:url(perg_a_top.webp)}html.pa .fontes::after{aspect-ratio:1000/290;background-image:url(perg_a_bot.webp)}
+html.pb .fontes{background-image:url(perg_b_mid.webp)}html.pb .fontes::before{aspect-ratio:1000/270;background-image:url(perg_b_top.webp)}html.pb .fontes::after{aspect-ratio:1000/270;background-image:url(perg_b_bot.webp)}
+html.pc .fontes{background-image:url(perg_c_mid.webp)}html.pc .fontes::before{aspect-ratio:1000/300;background-image:url(perg_c_top.webp)}html.pc .fontes::after{aspect-ratio:1000/270;background-image:url(perg_c_bot.webp)}
+@media(max-width:820px){.fontes .fbody>div{margin:0 16% 14px;padding:0 0 12px}.fontes h3{font-size:22px}.fontes p{font-size:17px}}
+#fontes .sbody{container-type:inline-size}
+html.pb .fontes{--rt:.27;--rb:.27}html.pc .fontes{--rt:.30;--rb:.27}
+
+/* desenrolar (ligado ao scroll) */
+.fontes>.fbody{border:0;border-radius:0;padding:0;background:none;box-shadow:none;overflow:hidden}
+html.unroll .fontes>.fbody{height:0}
+html.unroll .fontes>.fbody>div{opacity:0;transition:opacity .35s ease}
+html.unroll .fontes>.fbody>div.on{opacity:1}
+html.unroll .fontes~.rules{opacity:0;transition:opacity .4s ease}
+html.unroll .fontes.open~.rules{opacity:1}
+@media(prefers-reduced-motion:reduce){html.unroll .fontes>.fbody>div,html.unroll .fontes~.rules{transition:none}}
+
+/* desenrolar */
+.fontes>.fbody{border:0;border-radius:0;padding:0;background:none;box-shadow:none;overflow:hidden;min-height:0}
+.fontes{display:grid;grid-template-rows:auto 1fr auto}
+html.unroll .fontes{grid-template-rows:auto 0fr auto;transition:grid-template-rows 2.2s cubic-bezier(.45,.05,.25,1)}
+html.unroll .fontes.open{grid-template-rows:auto 1fr auto}
+html.unroll .fontes>.fbody>div{opacity:0;transition:opacity .9s ease .7s}
+html.unroll .fontes.open>.fbody>div{opacity:1}
+@media(prefers-reduced-motion:reduce){html.unroll .fontes,html.unroll .fontes>.fbody>div{transition:none}}

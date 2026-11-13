@@ -14,8 +14,6 @@ body.viagem-on .wrap>nav,body.viagem-on footer{display:none}
 .vtop a{color:#f3dd9a;text-decoration:none;font-size:18px;white-space:nowrap}
 .vtop a:hover{color:#fff}
 .vtitle{flex:1;text-align:center;font-size:21px;letter-spacing:.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.vclassic{border:2px solid #d6ab4f;border-radius:999px;padding:3px 14px 5px;font-size:16px}
-.vclassic:hover{background:#d6ab4f;color:#2b2418}
 .vskip{position:absolute;left:12px;top:calc(var(--vtest) + 6px);z-index:70;background:#d6ab4f;color:#1a1405;padding:10px 18px;border-radius:10px;font:600 16px var(--serif);text-decoration:none;transform:translateY(-200%);transition:transform .15s}
 .vskip:focus{transform:none}
 
@@ -26,7 +24,7 @@ body.viagem-on .wrap>nav,body.viagem-on footer{display:none}
 .vg-explore .vgstage:active{cursor:grabbing}
 .vgstage>canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .vgstage::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 45%,transparent 62%,rgba(6,26,38,.38));z-index:3}
-.vgstage .grain{position:absolute;inset:0;z-index:3;pointer-events:none;background:url(../map/grain.png);opacity:.07}
+.vgstage .grain{position:absolute;inset:0;z-index:3;pointer-events:none;background:url(grain.png);opacity:.07}
 .vgworld{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:2}
 .vgworld>*{position:absolute;left:0;top:0;transform-origin:0 0}
 .vgstage :focus-visible{outline:3px solid #fff;outline-offset:3px;box-shadow:0 0 0 6px #2b2418}
@@ -79,7 +77,7 @@ body.viagem-on .wrap>nav,body.viagem-on footer{display:none}
   background:radial-gradient(130% 90% at 8% 0%,rgba(255,252,238,.85),transparent 58%),radial-gradient(90% 80% at 100% 100%,rgba(150,108,44,.3),transparent 62%),linear-gradient(168deg,#f4e8c8,#ead8ab 52%,#dfc996);
   border:3px solid #2b2418;border-radius:20px 13px 22px 15px/14px 22px 13px 20px;
   box-shadow:inset 0 0 22px rgba(126,88,36,.3),0 7px 0 rgba(8,22,32,.4),0 16px 30px rgba(0,0,0,.32)}
-.parch::before{content:"";position:absolute;inset:0;border-radius:inherit;background:url(../map/grain.png);opacity:.16;mix-blend-mode:multiply;pointer-events:none}
+.parch::before{content:"";position:absolute;inset:0;border-radius:inherit;background:url(grain.png);opacity:.16;mix-blend-mode:multiply;pointer-events:none}
 .parch>*{position:relative}
 
 /* balão do Camões */
@@ -94,7 +92,7 @@ body.viagem-on .wrap>nav,body.viagem-on footer{display:none}
   border:3px solid #2b2418;border-radius:20px 13px 22px 15px/14px 22px 13px 20px;
   box-shadow:inset 0 0 22px rgba(126,88,36,.3),0 7px 0 rgba(8,22,32,.4),0 16px 30px rgba(0,0,0,.32)}
 .vlmc[hidden]{display:none}
-.vlmc::before{content:"";position:absolute;inset:0;border-radius:inherit;background:url(../map/grain.png);opacity:.16;mix-blend-mode:multiply;pointer-events:none}
+.vlmc::before{content:"";position:absolute;inset:0;border-radius:inherit;background:url(grain.png);opacity:.16;mix-blend-mode:multiply;pointer-events:none}
 .vlmc::after{content:"";position:absolute;left:var(--ax,50%);bottom:-14px;margin-left:-9px;border:9px solid transparent;border-top:13px solid #2b2418;border-bottom:0}
 .vlmc.below::after{bottom:auto;top:-14px;border-top:0;border-bottom:13px solid #2b2418}
 .vlmc.sheet{left:12px;right:12px;top:auto;bottom:118px;width:auto;max-height:46%;overflow:auto}
@@ -198,7 +196,6 @@ body.viagem-on .wrap>nav,body.viagem-on footer{display:none}
 @media (max-width:52rem){
   :root{--vtop:52px}
   .vtitle{font-size:18px}
-  .vclassic{font-size:14px;padding:2px 10px 4px}
   .vtop a[data-back]{font-size:0}
   .vtop a[data-back]::before{content:"\2190";font-size:22px}
   .vrail,.vmini{display:none!important}
@@ -306,8 +303,6 @@ html.vg #mapa .mapcta .pv::after{background:linear-gradient(90deg,transparent 60
 html.vg #mapa .mapcta .ill{right:auto;left:26px;bottom:-4px;width:132px}
 html.vg #mapa .mapcta .txt{flex:1 1 0;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:32px 40px 32px 18px}
 html.vg #mapa .mapcta b{font-size:clamp(32px,3.4vw,46px)}
-html.vg #mapa .mapcta .vcarta{margin-top:16px;color:var(--ouro);font-size:17px;text-decoration:underline;text-underline-offset:3px}
-html.vg #mapa .mapcta .vcarta:hover{color:#f6edcf}
 @media(max-width:52rem){
   html.vg #mapa .mapgrid .mapcta{flex-direction:column;min-height:0}
   html.vg #mapa .mapcta .pv{flex:none;aspect-ratio:16/10;min-height:0}

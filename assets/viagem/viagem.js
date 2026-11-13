@@ -39,7 +39,7 @@ const STR = {
     stop: 'Estamos em {p}. Toca no medalhão para ver a lenda.',
     fog: 'Esta ainda não ta posso contar. Estreia {d}.',
     bye: 'Até à próxima lenda!',
-    ep: 'Lenda {a} de {b}', explore: 'Explorar livremente', exit: 'Voltar ao percurso', classic: 'Mapa em pergaminho',
+    ep: 'Lenda {a} de {b}', explore: 'Explorar livremente', exit: 'Voltar ao percurso',
     back: 'Voltar ao site', back2: 'Voltar ao site', prev: 'Anterior', next: 'Seguinte', close: 'Fechar', north: 'Virar para norte',
     open: 'Ler a história', date: 'Ver a data de estreia', pub: 'Publicado', soon: 'Em breve',
     tip: 'Arrasta para mover, roda para aproximar, Shift e arrasta para rodar. Ou usa os botões e as setas do teclado.',
@@ -56,7 +56,7 @@ const STR = {
     stop: 'We are in {p}. Tap the medallion to see the legend.',
     fog: 'I cannot tell you this one yet. It premieres {d}.',
     bye: 'See you at the next legend!',
-    ep: 'Legend {a} of {b}', explore: 'Explore freely', exit: 'Back to the journey', classic: 'Parchment map',
+    ep: 'Legend {a} of {b}', explore: 'Explore freely', exit: 'Back to the journey',
     back: 'Back to the site', back2: 'Back to the site', prev: 'Previous', next: 'Next', close: 'Close', north: 'Face north',
     open: 'Read the story', date: 'See the premiere date', pub: 'Published', soon: 'Coming soon',
     tip: 'Drag to move, wheel to zoom, Shift and drag to rotate. Or use the buttons and the arrow keys.',
@@ -644,7 +644,7 @@ export async function initViagem(root, ctx) {
     pins.forEach((p, i) => { const e = stops[i].e; p.el.setAttribute('aria-label', S().ep.replace('{a}', e.n).replace('{b}', EPS.length) + ': ' + tx(e).t + (out(e) ? '' : ', ' + S().fogl.replace('{d}', dshort(e)))); const c = p.el.querySelector('.cap'); if (c) c.textContent = out(e) ? tx(e).place || '' : S().fogl.replace('{d}', dshort(e)); p.w0 = 0; });
     lms.forEach(L => { const T = L.m[lg] || L.m.pt; L.btn.setAttribute('aria-label', T[0]); L.lbl.textContent = T[0]; });
     crit.forEach(c => c.f.btn.setAttribute('aria-label', S()[c.say]));
-    q('[data-classic]').textContent = S().classic; q('[data-back]').textContent = '← ' + S().back;
+    q('[data-back]').textContent = '← ' + S().back;
     const b2 = q('[data-back2]'); if (b2) b2.querySelector('.tx').textContent = S().back2;
     refreshBtn(); tip.textContent = S().tip; compass.setAttribute('aria-label', S().north); rail.setAttribute('aria-label', S().reg);
     q('[data-skip]').textContent = S().skip; q('[data-list-h]').textContent = S().listh; q('[data-lm-h]').textContent = S().lmh; cue.querySelector('span').textContent = S().scroll;

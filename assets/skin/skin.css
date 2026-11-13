@@ -1,0 +1,114 @@
+/* v10 "livro de contos iluminado em 3D": só estilo, o conteúdo e as secções não mudam */
+@font-face{font-family:"Playfair Display";font-style:normal;font-weight:600;font-display:swap;src:url(Playfair-600.woff2) format("woff2")}
+@font-face{font-family:"Playfair Display";font-style:italic;font-weight:400;font-display:swap;src:url(Playfair-italic-400.woff2) format("woff2")}
+:root{--serif-d:"Playfair Display","IM Fell English",Georgia,serif;--glow:rgba(214,171,79,.35);--azul-az:#2f6f8f;color-scheme:dark}
+html{background:#07161f}
+body{background:
+  radial-gradient(1100px 620px at 78% -8%,rgba(47,111,143,.38),transparent 62%),
+  radial-gradient(900px 560px at 4% 38%,rgba(214,171,79,.07),transparent 60%),
+  linear-gradient(180deg,#0d2a3a 0%,#0b2230 38%,#081a26 100%);background-attachment:fixed}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.55;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='360'%3E%3Cg fill='%23f3e3b0'%3E%3Ccircle cx='24' cy='40' r='1.1'/%3E%3Ccircle cx='96' cy='210' r='.8'/%3E%3Ccircle cx='170' cy='72' r='1.3'/%3E%3Ccircle cx='250' cy='150' r='.9'/%3E%3Ccircle cx='320' cy='30' r='1'/%3E%3Ccircle cx='300' cy='290' r='1.2'/%3E%3Ccircle cx='60' cy='320' r='.9'/%3E%3Ccircle cx='200' cy='300' r='.7'/%3E%3Ccircle cx='140' cy='160' r='.6'/%3E%3C/g%3E%3C/svg%3E")}
+.wrap{position:relative;z-index:1}
+h1,h2,h3{font-weight:600;letter-spacing:-.01em}
+.ep h3,.upc b,.list strong,.sub3,.mcard h3,.fontes h3{font-weight:600}
+.ep .num,.upc .num,.sealcard .nn,.callout p,footer .q,.sealcard .k{font-weight:400}
+
+/* topo */
+nav{padding:18px 0}
+.bm{height:46px;width:46px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.45))}
+nav .brand{font-size:24px}
+
+/* abertura: janela em arco com o Camões a mexer */
+.hero{align-items:center;padding:28px 0 96px;gap:40px 64px;grid-template-columns:minmax(0,1fr) 360px}
+.hero h1{text-shadow:0 2px 24px rgba(214,171,79,.18)}
+.plate{position:relative;max-width:360px}
+.portrait{position:relative;aspect-ratio:9/13;border-radius:180px 180px 14px 14px;border:2px solid var(--ouro);
+  box-shadow:0 0 0 7px #0b2230,0 0 0 8px var(--ouro-esc),0 24px 60px rgba(0,0,0,.55),0 0 70px var(--glow);background:#0f3345}
+.portrait img,.portrait video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 22%;display:block}
+.portrait video{opacity:0;transition:opacity .6s}
+.portrait video.on{opacity:1}
+.sparks{position:absolute;inset:-16px;pointer-events:none;z-index:3}
+.sparks i{position:absolute;width:6px;height:6px;border-radius:50%;background:radial-gradient(circle,#fff3c4 0,#d6ab4f 45%,transparent 70%);
+  left:var(--x);bottom:var(--y);opacity:0;animation:rise 6s ease-in infinite;animation-delay:var(--d)}
+@keyframes rise{0%{transform:translateY(0) scale(.6);opacity:0}15%{opacity:.95}100%{transform:translateY(-150px) scale(1.15);opacity:0}}
+.bubble{position:absolute;left:-26px;bottom:42px;z-index:4;max-width:200px;background:var(--papel);color:var(--papel-tinta);font-family:var(--serif-d);font-style:italic;font-size:18px;line-height:1.25;padding:10px 14px;border-radius:16px 16px 16px 2px;box-shadow:0 10px 26px rgba(0,0,0,.45)}
+.plate figcaption{border-top:0;text-align:center;margin-top:16px;color:var(--ouro);font-family:var(--serif-d);font-size:17px}
+
+/* botões: selo dourado */
+.btn{border-radius:999px;padding:12px 26px;background:linear-gradient(180deg,#efce7a,#d6ab4f 55%,#b88a32);color:#1a1405;border:0;
+  box-shadow:0 8px 20px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.5);transition:transform .15s,box-shadow .15s}
+.btn:hover{background:linear-gradient(180deg,#f6d98d,#e0b75d 55%,#c39636);transform:translateY(-1px)}
+.btn.ghost{background:rgba(214,171,79,.08);color:var(--ouro);border:1px solid var(--ouro-esc);box-shadow:none}
+.btn.ghost:hover{background:rgba(214,171,79,.18)}
+
+/* secções: friso de azulejo e guia 3D */
+section{position:relative;border-top:0;padding:96px 0 72px}
+section::before{content:"";position:absolute;left:0;right:0;top:34px;height:18px;opacity:.9;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='18'%3E%3Crect width='36' height='18' fill='%230f3345'/%3E%3Cpath d='M18 2l7 7-7 7-7-7z' fill='none' stroke='%23d6ab4f' stroke-width='1.2'/%3E%3Cpath d='M18 6l3 3-3 3-3-3z' fill='%232f6f8f'/%3E%3Ccircle cx='0' cy='9' r='2' fill='%232f6f8f'/%3E%3Ccircle cx='36' cy='9' r='2' fill='%232f6f8f'/%3E%3C/svg%3E") repeat-x;
+  border-top:1px solid var(--ouro-esc);border-bottom:1px solid var(--ouro-esc)}
+.shead{position:sticky;top:20px;align-self:start}
+.shead h2{margin-bottom:12px}
+.guide{display:block;width:150px;height:auto;margin:22px 0 0;filter:drop-shadow(0 14px 14px rgba(0,0,0,.5))}
+
+/* episódios como capas de livro */
+.eps{border-top:0;display:grid;gap:18px}
+.ep{grid-template-columns:68px 82px minmax(0,1fr);gap:0 18px;padding:18px 20px;border:1px solid var(--regua);border-radius:16px;background:linear-gradient(135deg,rgba(16,48,63,.85),rgba(11,34,48,.85));box-shadow:0 12px 30px rgba(0,0,0,.3);transition:transform .2s,border-color .2s,box-shadow .2s}
+.ep:hover{transform:translateY(-3px);border-color:var(--ouro-esc);box-shadow:0 18px 38px rgba(0,0,0,.4),0 0 30px rgba(214,171,79,.12)}
+.ep img{width:82px;border-radius:6px;border:1px solid var(--ouro);box-shadow:4px 6px 14px rgba(0,0,0,.5)}
+.ep .num{font-size:34px}
+.upgrid{border-top:0;display:grid;gap:10px}
+.upc{padding:14px 18px;border:1px dashed var(--regua);border-radius:12px;background:rgba(16,48,63,.4)}
+.upc:hover{border-color:var(--ouro-esc)}
+.upc .num{width:56px}
+
+/* mapa e fontes em pergaminho */
+.map{border-radius:10px;box-shadow:0 18px 40px rgba(0,0,0,.45),inset 0 0 40px rgba(139,90,43,.25)}
+.mcard{border:1px solid var(--regua);border-radius:14px;padding:16px 18px;background:rgba(16,48,63,.7)}
+.list{border-top:0}
+.fontes div{border:1px solid rgba(139,90,43,.5);border-radius:10px;padding:18px 18px 20px;background:var(--papel);box-shadow:0 12px 26px rgba(0,0,0,.35)}
+.fontes h3,.fontes p{color:var(--papel-tinta)}
+.mapcta{border-radius:14px}
+
+/* rodapé: Camões a piscar o olho e direitos */
+footer{display:grid;grid-template-columns:150px minmax(0,1fr);gap:8px 32px;align-items:center;border-top:0;position:relative;padding:72px 0 48px;margin-top:20px}
+footer::before{content:"";position:absolute;left:0;right:0;top:18px;height:18px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='18'%3E%3Crect width='36' height='18' fill='%230f3345'/%3E%3Cpath d='M18 2l7 7-7 7-7-7z' fill='none' stroke='%23d6ab4f' stroke-width='1.2'/%3E%3Cpath d='M18 6l3 3-3 3-3-3z' fill='%232f6f8f'/%3E%3C/svg%3E") repeat-x;border-top:1px solid var(--ouro-esc);border-bottom:1px solid var(--ouro-esc)}
+.fwin{position:relative;width:150px;aspect-ratio:9/13;border-radius:75px 75px 10px 10px;overflow:hidden;border:2px solid var(--ouro);box-shadow:0 0 0 5px #0b2230,0 0 0 6px var(--ouro-esc),0 14px 30px rgba(0,0,0,.5)}
+.fwin img,.fwin video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 25%}
+.ftxt{display:grid;gap:10px;justify-items:start}
+footer .q{font-size:26px;line-height:1.25;max-width:24em}
+footer .btn{font-size:17px;padding:9px 20px}
+.legal{margin:6px 0 0;color:var(--texto);font-size:16px}
+.legal2{margin:0;color:var(--suave);font-size:14.5px;line-height:1.5;max-width:52em}
+
+/* página de episódio */
+.cover img{border-radius:6px}
+.callout{background:rgba(16,48,63,.55);border-radius:0 12px 12px 0}
+.sealcard{border-radius:10px}
+
+/* telemóvel */
+@media(max-width:820px){
+  .hero{grid-template-columns:1fr;padding-bottom:72px}
+  .plate{justify-self:center;max-width:300px}
+  .bubble{left:-6px;bottom:30px;max-width:170px;font-size:16px}
+  section{grid-template-columns:1fr;padding:84px 0 52px}
+  .shead{position:static;display:grid;grid-template-columns:minmax(0,1fr) 92px;gap:0 14px;align-items:center}
+  .shead h2,.shead .lede{grid-column:1}
+  .guide{grid-column:2;grid-row:1/span 2;width:92px;margin:0}
+  .ep{grid-template-columns:54px 70px minmax(0,1fr);padding:14px}
+  .ep img{width:70px}
+  .ep .num{font-size:28px}
+  footer{grid-template-columns:1fr;justify-items:center;text-align:center}
+  .ftxt{justify-items:center}
+  .legal2{text-align:left}
+}
+@media(prefers-reduced-motion:reduce){
+  .sparks{display:none}
+  .portrait video,.fwin video{display:none}
+  .ep,.btn{transition:none}.ep:hover,.btn:hover{transform:none}
+}
+#mapa .shead{position:static}
+.soc{display:flex;flex-wrap:wrap;gap:10px}footer .btn.ghost{margin-left:0}
+/* páginas de episódio: sem friso de azulejo por cima do texto */
+.art section::before,#ep section::before,#viagem section::before,.vgfim section::before{display:none}
+.art section{padding:34px 0}
