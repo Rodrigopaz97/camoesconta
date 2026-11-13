@@ -21,11 +21,3 @@ html.unroll .fontes~.rules{opacity:0;transition:opacity .4s ease}
 html.unroll .fontes.open~.rules{opacity:1}
 @media(prefers-reduced-motion:reduce){html.unroll .fontes>.fbody>div,html.unroll .fontes~.rules{transition:none}}
 
-/* desenrolar */
-.fontes>.fbody{border:0;border-radius:0;padding:0;background:none;box-shadow:none;overflow:hidden;min-height:0}
-.fontes{display:grid;grid-template-rows:auto 1fr auto}
-html.unroll .fontes{grid-template-rows:auto 0fr auto;transition:grid-template-rows 2.2s cubic-bezier(.45,.05,.25,1)}
-html.unroll .fontes.open{grid-template-rows:auto 1fr auto}
-html.unroll .fontes>.fbody>div{opacity:0;transition:opacity .9s ease .7s}
-html.unroll .fontes.open>.fbody>div{opacity:1}
-@media(prefers-reduced-motion:reduce){html.unroll .fontes,html.unroll .fontes>.fbody>div{transition:none}}
