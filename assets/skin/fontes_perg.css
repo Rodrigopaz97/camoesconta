@@ -13,11 +13,11 @@ html.pc .fontes{background-image:url(perg_c_mid.webp)}html.pc .fontes::before{as
 html.pb .fontes{--rt:.27;--rb:.27}html.pc .fontes{--rt:.30;--rb:.27}
 
 /* desenrolar (ligado ao scroll) */
-.fontes>.fbody{border:0;border-radius:0;padding:0;background:none;box-shadow:none;overflow:hidden}
-html.unroll .fontes>.fbody{height:0}
-html.unroll .fontes>.fbody>div{opacity:0;transition:opacity .35s ease}
+.fontes>.fbody{position:relative;border:0;border-radius:0;padding:0;background:none;box-shadow:none;overflow:hidden}
+html.unroll .fontes>.fbody{height:0;transition:height .16s linear}
+html.unroll .fontes>.fbody>div{opacity:0;transition:opacity .5s ease}
 html.unroll .fontes>.fbody>div.on{opacity:1}
 html.unroll .fontes~.rules{opacity:0;transition:opacity .4s ease}
 html.unroll .fontes.open~.rules{opacity:1}
-@media(prefers-reduced-motion:reduce){html.unroll .fontes>.fbody>div,html.unroll .fontes~.rules{transition:none}}
+@media(prefers-reduced-motion:reduce){html.unroll .fontes>.fbody,html.unroll .fontes>.fbody>div,html.unroll .fontes~.rules{transition:none}}
 
