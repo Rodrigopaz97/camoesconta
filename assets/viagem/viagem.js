@@ -147,12 +147,25 @@ void main(){
   gl_FragColor=vec4(col,1.);
 }`;
 
-const PVERT = `uniform float uScale; attribute float aT; varying float vT;
-void main(){ vT=aT; vec4 mv=modelViewMatrix*vec4(position,1.); gl_PointSize=clamp(uScale*3.6/-mv.z,3.,9.); gl_Position=projectionMatrix*mv; }`;
-const PFRAG = `precision mediump float; uniform float uProg; varying float vT;
-void main(){ vec2 p=gl_PointCoord-.5; float r=length(p); if(r>.5) discard; vec3 ink=vec3(.169,.141,.094);
-  float done=step(vT,uProg); vec3 c=mix(vec3(1.,.97,.88),ink,done); float ring=smoothstep(.34,.46,r); c=mix(c,mix(ink,vec3(1.),1.-done),ring);
-  gl_FragColor=vec4(c,mix(.75,1.,done)); }`;
+// Caminho à pena: cada ponto do percurso vira dois vértices, alargados no ecrã (largura fixa em píxeis, nítida a qualquer zoom).
+// A tinta aparece até ao progresso; o resto fica a lápis pontilhado; por baixo há um halo de papel.
+// Uma segunda passagem (profundidade invertida) desenha a tracejado claro o troço escondido atrás das serras.
+const PVERT = `uniform vec2 uRes; uniform float uW; attribute vec3 aPrev; attribute vec3 aNext; attribute float aSide; attribute float aT; attribute float aDist;
+varying float vT; varying float vSide; varying float vDist;
+void main(){ vT=aT; vSide=aSide; vDist=aDist; mat4 m=projectionMatrix*modelViewMatrix;
+  vec4 c=m*vec4(position,1.), p=m*vec4(aPrev,1.), n=m*vec4(aNext,1.);
+  vec2 sc=c.xy/c.w*uRes, sp=p.xy/p.w*uRes, sn=n.xy/n.w*uRes, d1=sc-sp, d2=sn-sc, d=vec2(0.);
+  if(dot(d1,d1)>1e-6) d+=normalize(d1); if(dot(d2,d2)>1e-6) d+=normalize(d2); if(dot(d,d)<1e-6) d=vec2(1.,0.);
+  d=normalize(d); c.xy+=vec2(-d.y,d.x)*aSide*uW*.5/uRes*c.w; gl_Position=c; }`;
+const PFRAG = `uniform float uProg, uW, uPPU, uDpr, uGhost; varying float vT; varying float vSide; varying float vDist;
+void main(){ float hw=uW*.5, a=abs(vSide)*hw, s=vDist*uPPU, done=step(vT,uProg);
+  vec3 ink=vec3(.169,.141,.094), paper=vec3(.98,.95,.85), pencil=vec3(.36,.30,.23);
+  if(uGhost>.5){ float per=11.*uDpr, on=step(fract(s/per),.55), w=1.3*uDpr; float al=on*(1.-smoothstep(w-.8,w+.8,a)); if(al<.01) discard; gl_FragColor=vec4(paper,al*.55); return; }
+  float halo=1.-smoothstep(hw-1.2,hw,a);
+  float core=1.-smoothstep(2.1*uDpr-.7,2.1*uDpr+.7,a);
+  float pd=9.*uDpr, ax=(fract(s/pd)-.5)*pd, pnt=1.-smoothstep(1.5*uDpr-.7,1.5*uDpr+.7,length(vec2(ax,a)));
+  float m=mix(pnt,core,done); vec3 col=mix(paper,mix(pencil,ink,done),m);
+  float alpha=max(m,halo*mix(.4,.92,done)); if(alpha<.01) discard; gl_FragColor=vec4(col,alpha); }`;
 
 const loadImg = (url) => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
 const pixels = (img) => { const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(img, 0, 0); return x.getImageData(0, 0, img.width, img.height).data; };
@@ -188,7 +201,8 @@ export async function initViagem(root, ctx) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: !narrow.matches, powerPreference: 'high-performance' });
   if (!renderer.capabilities.isWebGL2) throw new Error('sem WebGL2');
   renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
-  let dpr = Math.min(devicePixelRatio || 1, narrow.matches ? 1.5 : 1.75);
+  let dpr = 1, dprDrop = 0;
+  const dprFor = (w, h) => Math.max(1, clamp(Math.sqrt((touchUI() ? 2.4e6 : 5e6) / Math.max(1, w * h)), 1, Math.min(devicePixelRatio || 1, 2)) - dprDrop);
   const BG = new THREE.Color().setRGB(0x16 / 255, 0x45 / 255, 0x5a / 255, THREE.LinearSRGBColorSpace);
   const scene = new THREE.Scene(); scene.background = BG;
   scene.fog = new THREE.Fog(BG, 1500, 3100);
@@ -278,6 +292,8 @@ export async function initViagem(root, ctx) {
   let sayT = 0;
   function say(txt, ms = 6500) { camSay.textContent = txt; camSay.hidden = false; clearTimeout(sayT); sayT = setTimeout(() => { camSay.hidden = true }, ms); }
   function setPose(p, _d, ms = 0) {
+    cam.want = p;
+    if (p !== cam.pose && !(camImgs[p].complete && camImgs[p].naturalWidth)) { camImgs[p].addEventListener('load', () => { if (cam.want === p) setPose(p, _d, ms); }, { once: true }); return; }
     if (p !== cam.pose) { camImgs[cam.pose].classList.remove('on'); camImgs[p].classList.add('on'); cam.pose = p; camBox.classList.toggle('walking', p === 'walk'); camFig.classList.remove('pop'); void camFig.offsetWidth; camFig.classList.add('pop'); }
     if (p !== 'write') cam.lastAct = performance.now();
     cam.hold = ms ? performance.now() + ms : 0;
@@ -295,14 +311,27 @@ export async function initViagem(root, ctx) {
     for (let i = 0; i <= N; i++) { const p = curve.getPoint(i / N); pathPts.push([p.x, p.z]); }
   }
   const pathAt = (seg, u) => { const f = clamp(u, 0, 1) * SEG, i = Math.min(Math.floor(f), SEG - 1), a = pathPts[seg * SEG + i], b = pathPts[seg * SEG + i + 1], t = f - i; return [lerp(a[0], b[0], t), lerp(a[1], b[1], t)]; };
-  let pathMat = null;
-  if (pathPts.length) {
-    const pg = new THREE.BufferGeometry(), pp = new Float32Array(pathPts.length * 3), ptt = new Float32Array(pathPts.length);
-    pathPts.forEach((p, i) => { pp.set([p[0], ground(p[0], p[1]) + 1.4, p[1]], i * 3); ptt[i] = i / (pathPts.length - 1); });
-    pg.setAttribute('position', new THREE.BufferAttribute(pp, 3)); pg.setAttribute('aT', new THREE.BufferAttribute(ptt, 1));
-    pathMat = new THREE.ShaderMaterial({ vertexShader: PVERT, fragmentShader: PFRAG, transparent: true, fog: false, uniforms: { uScale: { value: 600 }, uProg: { value: 0 } } });
-    scene.add(new THREE.Points(pg, pathMat));
+  let pathMat = null, ghostMat = null;
+  const pathU = { uRes: { value: new THREE.Vector2(1, 1) }, uW: { value: 9 }, uProg: { value: 0 }, uPPU: { value: 1 }, uDpr: { value: 1 }, uGhost: { value: 0 } };
+  if (pathPts.length > 1) {
+    const n = pathPts.length, P = pathPts.map(p => [p[0], ground(p[0], p[1]) + 1.4, p[1]]);
+    const pos = new Float32Array(n * 6), prv = new Float32Array(n * 6), nxt = new Float32Array(n * 6), side = new Float32Array(n * 2), at = new Float32Array(n * 2), dist = new Float32Array(n * 2), idx = [];
+    let acc = 0;
+    for (let i = 0; i < n; i++) {
+      const c = P[i], a = P[Math.max(0, i - 1)], b = P[Math.min(n - 1, i + 1)];
+      if (i) acc += Math.hypot(c[0] - a[0], c[2] - a[2]);
+      for (let s = 0; s < 2; s++) { const k = i * 2 + s; pos.set(c, k * 3); prv.set(a, k * 3); nxt.set(b, k * 3); side[k] = s ? 1 : -1; at[k] = i / (n - 1); dist[k] = acc; }
+      if (i < n - 1) { const k = i * 2; idx.push(k, k + 1, k + 2, k + 1, k + 3, k + 2); }
+    }
+    const pg = new THREE.BufferGeometry();
+    pg.setAttribute('position', new THREE.BufferAttribute(pos, 3)); pg.setAttribute('aPrev', new THREE.BufferAttribute(prv, 3)); pg.setAttribute('aNext', new THREE.BufferAttribute(nxt, 3));
+    pg.setAttribute('aSide', new THREE.BufferAttribute(side, 1)); pg.setAttribute('aT', new THREE.BufferAttribute(at, 1)); pg.setAttribute('aDist', new THREE.BufferAttribute(dist, 1)); pg.setIndex(idx);
+    pathMat = new THREE.ShaderMaterial({ vertexShader: PVERT, fragmentShader: PFRAG, transparent: true, depthWrite: false, fog: false, side: THREE.DoubleSide, uniforms: pathU });
+    ghostMat = new THREE.ShaderMaterial({ vertexShader: PVERT, fragmentShader: PFRAG, transparent: true, depthWrite: false, depthFunc: THREE.GreaterDepth, fog: false, side: THREE.DoubleSide, uniforms: Object.assign({}, pathU, { uGhost: { value: 1 } }) });
+    const ink = new THREE.Mesh(pg, pathMat), ghost = new THREE.Mesh(pg, ghostMat);
+    ink.frustumCulled = ghost.frustumCulled = false; ink.renderOrder = 2; ghost.renderOrder = 1; scene.add(ghost, ink);
   }
+  let pathProg = 0;
 
   // ---------- câmara
   const rig = { x: 0, z: 0, d: 1200, p: 46, h: 0 }, tgt = { x: 0, z: 0, d: 1200, p: 46, h: 0 };
@@ -313,13 +342,17 @@ export async function initViagem(root, ctx) {
   function buildPieces() {
     const many = stops.length > 6, hold = many ? .6 : .8, fly = many ? .7 : .9, u = vh;
     pieces = [{ k: 'intro', len: vh }, { k: 'hold', i: 0, len: u * .35 }];
-    for (let i = 1; i < WP.length; i++) { pieces.push({ k: 'fly', i, len: u * fly }); pieces.push({ k: 'hold', i, len: u * hold }); }
+    for (let i = 1; i < WP.length; i++) {
+      const dd = Math.hypot(WP[i].x - WP[i - 1].x, WP[i].z - WP[i - 1].z);
+      pieces.push({ k: 'fly', i, len: u * fly * clamp(.62 + 1.5 * dd / FH, .7, 1.45) }); pieces.push({ k: 'hold', i, len: u * hold });
+    }
     pieces.push({ k: 'outro', len: vh });
     let c = 0; pieces.forEach(p => { p.s = c; c += p.len; p.e = c; }); total = c;
   }
   function wpState(px) {
     let pc = pieces[pieces.length - 1]; for (const c of pieces) if (px <= c.e) { pc = c; break; }
-    const t = clamp((px - pc.s) / Math.max(1, pc.e - pc.s), 0, 1), u = sstep(0, 1, t), W0 = WP[0], last = WP[WP.length - 1];
+    // nos voos usa uma curva mais suave (smootherstep): sai devagar, voa a meio e abranda bem perto da lenda
+    const t = clamp((px - pc.s) / Math.max(1, pc.e - pc.s), 0, 1), u = pc.k === 'fly' ? t * t * t * (t * (t * 6 - 15) + 10) : sstep(0, 1, t), W0 = WP[0], last = WP[WP.length - 1];
     if (pc.k === 'intro') return { x: 0, z: 0, d: lerp(W0.d * 1.55, W0.d, u), p: lerp(62, W0.p, u), h: lerp(16, 0, u), stop: 0, mode: 'intro', t };
     if (pc.k === 'hold') { const w = WP[pc.i]; return { x: w.x, z: w.z, d: w.d, p: w.p, h: w.h, stop: pc.i, mode: 'hold', t }; }
     if (pc.k === 'outro') return { x: lerp(last.x, 0, u), z: lerp(last.z, 0, u), d: lerp(last.d, W0.d * 1.4, u), p: lerp(last.p, 58, u), h: lerp(last.h, -12, u), stop: 0, mode: 'outro', t };
@@ -415,7 +448,7 @@ export async function initViagem(root, ctx) {
     setPose('point', 0, 9000); say(S().lmsay.replace('{n}', T[0]), 5000);
     announce(T[0] + '. ' + T[1]);
   }
-  function hideLM() { if (!lmActive) return; lmActive = null; lmCard.hidden = true; lms.forEach(o => o.btn.setAttribute('aria-expanded', 'false')); if (activeStop && !explore && dismissed !== activeStop) showPanel(activeStop); }
+  function hideLM() { if (!lmActive) return; lmActive = null; lmCard.hidden = true; lms.forEach(o => o.btn.setAttribute('aria-expanded', 'false')); autoPanel(activeStop); }
   lmCard.querySelector('.x').addEventListener('click', () => { const b = lmActive && lmActive.btn; hideLM(); b && b.focus(); });
   addEventListener('keydown', e => { if (e.key === 'Escape' && lmActive) { const b = lmActive.btn; hideLM(); b.focus(); e.stopPropagation(); } }, true);
 
@@ -437,7 +470,27 @@ export async function initViagem(root, ctx) {
   compass.addEventListener('click', () => { if (explore) { tgt.h = 0; need() } });
 
   // ---------- painel da lenda
-  let activeStop = 0, dismissed = -1;
+  let activeStop = 0, dismissed = -1, wantPanel = false;
+  // telemóvel: ao chegar a uma lenda aparece um cartão pequeno em baixo; o painel completo só abre ao tocar
+  const nowC = document.createElement('button'); nowC.type = 'button'; nowC.className = 'vnow';
+  nowC.innerHTML = '<span class="th" aria-hidden="true"><img alt="" decoding="async"></span><span class="tx"><small></small><b class="t"></b><span class="ln"></span></span><span class="go" aria-hidden="true"></span>';
+  hud.appendChild(nowC);
+  nowC.addEventListener('click', () => { if (!activeStop) return; dismissed = -1; showPanel(activeStop); syncNow(); const x = panel.querySelector('.x'); if (x && tabNav) x.focus(); });
+  function fillNow(i) {
+    const st = stops[i - 1]; if (!st) return; const e = st.e, o = out(e), X = tx(e), im = (MAPA[e.id] && MAPA[e.id].m) || COV[e.id] || '';
+    nowC.dataset.i = i; nowC.querySelector('img').src = im; nowC.querySelector('.th').hidden = !im;
+    nowC.querySelector('small').textContent = S().ep.replace('{a}', e.n).replace('{b}', EPS.length) + ' · ' + (o ? S().pub : S().fogl.replace('{d}', dshort(e)));
+    nowC.querySelector('.t').textContent = X.t; nowC.querySelector('.ln').textContent = o ? placeLine(e) : (X.teaser || placeLine(e));
+    nowC.setAttribute('aria-label', (o ? S().open : S().date) + ': ' + X.t);
+  }
+  function syncNow() {
+    const on = narrow.matches && activeStop > 0 && !explore && !panel.classList.contains('in') && lmCard.hidden && !heroUp;
+    if (on && +nowC.dataset.i !== activeStop) fillNow(activeStop);
+    if (nowC.classList.contains('in') !== on) { nowC.classList.toggle('in', on); nowC.tabIndex = on ? 0 : -1; nowC.setAttribute('aria-hidden', String(!on)); root.classList.toggle('vg-now', on); }
+  }
+  nowC.tabIndex = -1; nowC.setAttribute('aria-hidden', 'true');
+  // abertura automática do painel: no computador sim; no telemóvel só se o painel já estava aberto (Seguinte/Anterior)
+  const autoPanel = (i) => { if (!i || explore || dismissed === i) return; if (narrow.matches && !wantPanel) return; showPanel(i); };
   function showPanel(i) {
     const st = stops[i - 1]; if (!st) { panel.classList.remove('in'); panel.setAttribute('aria-hidden', 'true'); return; }
     const e = st.e, o = out(e), X = tx(e);
@@ -463,7 +516,7 @@ export async function initViagem(root, ctx) {
   function setExplore(on) {
     if (on === explore) return; explore = on; root.classList.toggle('vg-explore', on); btnEx.setAttribute('aria-pressed', String(on)); refreshBtn();
     if (on) { panel.classList.remove('in'); panel.setAttribute('aria-hidden', 'true'); hideLM(); tgt.x = rig.x; tgt.z = rig.z; tgt.d = rig.d; tgt.p = rig.p; tgt.h = rig.h; tip.hidden = false; setTimeout(() => tip.hidden = true, 9000); setPose('spy', 1); announce(touchUI() ? S().tipT : S().tip); }
-    else { tip.hidden = true; setPose('idle'); if (activeStop && dismissed !== activeStop) showPanel(activeStop); }
+    else { tip.hidden = true; setPose('idle'); autoPanel(activeStop); }
     need();
   }
   btnEx.addEventListener('click', () => setExplore(!explore));
@@ -496,8 +549,8 @@ export async function initViagem(root, ctx) {
     const stick = parseFloat(getComputedStyle(stage).top) || 0;
     track.style.height = reduced ? '' : Math.round(total + vh + stick) + 'px';
     trackTop = track.getBoundingClientRect().top + scrollY;
-    renderer.setPixelRatio(dpr); renderer.setSize(vw, vh, false); camera.aspect = vw / vh; camera.updateProjectionMatrix();
-    if (pathMat) pathMat.uniforms.uScale.value = (vh * dpr) / (2 * Math.tan(FOV * D2R / 2));
+    dpr = dprFor(vw, vh); renderer.setPixelRatio(dpr); renderer.setSize(vw, vh, false); camera.aspect = vw / vh; camera.updateProjectionMatrix();
+    pathU.uRes.value.set(vw * dpr / 2, vh * dpr / 2); pathU.uDpr.value = dpr; pathU.uW.value = 10 * dpr;
     WP[0].d = fitDist(); if (!started) { rig.x = tgt.x = 0; rig.z = tgt.z = 0; rig.d = WP[0].d * 1.55; rig.p = 62; rig.h = 16; }
     need();
   }
@@ -505,6 +558,7 @@ export async function initViagem(root, ctx) {
   function goStop(i) {
     i = clamp(i, 1, stops.length);
     if (i === activeStop) { dismissed = -1; if (explore) setExplore(false); else { hideLM(); showPanel(i); } return; }
+    wantPanel = panel.classList.contains('in');
     if (explore) setExplore(false);
     if (reduced) { manual = i; dismissed = -1; need(); return; }
     const pc = pieces.find(p => p.k === 'hold' && p.i === i); if (!pc) return;
@@ -582,7 +636,7 @@ export async function initViagem(root, ctx) {
     hudRects.length = 0;
     const sr = stage.getBoundingClientRect();
     if (hud.hasAttribute('inert') || +hud.style.opacity < .3) return;
-    for (const el of root.querySelectorAll('.vchips>.vchip, .vtr, .vbr, .vtime, .vrail, .vmini, .vcambox .fig, .vcambox .say')) {
+    for (const el of root.querySelectorAll('.vchips>.vchip, .vtr, .vbr, .vtime, .vrail, .vmini, .vcambox .fig, .vcambox .say, .vnow.in')) {
       if (el.hidden) continue; const r = el.getBoundingClientRect(); if (r.width < 2 || r.height < 2) continue;
       hudRects.push([r.left - sr.left, r.top - sr.top, r.right - sr.left, r.bottom - sr.top]);
     }
@@ -674,7 +728,7 @@ export async function initViagem(root, ctx) {
       if (ns !== activeStop) {
         activeStop = ns; hideLM();
         if (ns) {
-          dismissed = -1; showPanel(ns);
+          dismissed = -1; autoPanel(ns); wantPanel = false;
           const S0 = stops[ns - 1];
           if (out(S0.e)) { setPose('cheer', 0, 1400); setTimeout(() => { if (activeStop === ns && !lmActive) setPose('point', 0, 0) }, 1400); } else setPose('think');
           say(sayStop(S0), 7000);
@@ -686,6 +740,12 @@ export async function initViagem(root, ctx) {
       if (st.mode === 'intro' && st.t > .5 && !cam.introDone) { cam.introDone = true; setPose('wave', 0, 3000); say(S().hi, 5500); }
     }
     const k = reduced || !started ? 1 : 1 - Math.exp(-dt / 150); started = true;
+    if (pathMat) {
+      const L = Math.max(1, stops.length - 1);
+      const want = reduced ? (manual ? (manual - 1) / L : 0) : st.mode === 'fly' ? (st.pseg >= 0 ? (st.pseg + st.u) / L : 0) : st.mode === 'hold' ? Math.max(0, st.stop - 1) / L : st.mode === 'outro' ? 1 : 0;
+      pathProg += (want - pathProg) * k; pathU.uProg.value = pathProg + 1e-4;
+      pathU.uPPU.value = (vh * dpr) / (2 * Math.tan(FOV * D2R / 2) * Math.max(1, rig.d));
+    }
     let moving = false;
     for (const key of ['x', 'z', 'd', 'p', 'h']) { const dv = tgt[key] - rig[key]; if (Math.abs(dv) > (key === 'd' ? .3 : .02)) { rig[key] += dv * k; moving = true } else rig[key] = tgt[key]; }
     const ph = rig.p * D2R, th = rig.h * D2R, gy = ground(rig.x, rig.z);
@@ -714,7 +774,6 @@ export async function initViagem(root, ctx) {
       compass.firstElementChild.style.transform = `rotate(${(-rig.h).toFixed(1)}deg)`; drawMini();
       const coreS = vh, coreE = total - vh, prog = reduced ? (manual ? manual / stops.length : 0) : clamp((px - coreS) / Math.max(1, coreE - coreS), 0, 1);
       const fill = q('[data-fill]'); if (fill) fill.style.width = (prog * 92).toFixed(1) + '%';
-      if (pathMat) pathMat.uniforms.uProg.value = prog;
       time.querySelectorAll('.tn').forEach(b => { const on = +b.dataset.i === activeStop; b.classList.toggle('on', on); if (on) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current'); });
       chipEp.textContent = activeStop ? S().ep.replace('{a}', stops[activeStop - 1].e.n).replace('{b}', EPS.length) : '';
       chipEp.hidden = !activeStop;
@@ -730,9 +789,10 @@ export async function initViagem(root, ctx) {
     }
     measureHud();
     root.classList.toggle('vg-sheet', panel.classList.contains('in') || !lmCard.hidden);
+    syncNow();
     renderer.render(scene, camera); placeHits(); updateLabels();
     frames++; if (!fpsT) fpsT = now;
-    if (now - fpsT > 2500) { const fps = frames / ((now - fpsT) / 1000); if (fps < 26 && dpr > 1) { dpr = Math.max(1, dpr - .5); renderer.setPixelRatio(dpr); renderer.setSize(vw, vh, false); } frames = 0; fpsT = now; }
+    if (now - fpsT > 2500) { const fps = frames / ((now - fpsT) / 1000); if (fps < 26 && dpr > 1) { dprDrop += .5; dpr = dprFor(vw, vh); renderer.setPixelRatio(dpr); renderer.setSize(vw, vh, false); pathU.uRes.value.set(vw * dpr / 2, vh * dpr / 2); pathU.uDpr.value = dpr; pathU.uW.value = 10 * dpr; } frames = 0; fpsT = now; }
     if (running) { if (moving) raf = requestAnimationFrame(frame); else setTimeout(() => { if (running && !raf) raf = requestAnimationFrame(frame) }, reduced ? 400 : 33); }
   }
 
@@ -765,7 +825,7 @@ export async function initViagem(root, ctx) {
     need();
   }
   ctx.onRefresh = refresh;
-  ctx.dbg = { renderer, figs, labels, pins, rig, cam, stops, camera, lms, setExplore, get activeStop() { return activeStop }, get total() { return total } };
+  ctx.dbg = { renderer, figs, labels, pins, rig, tgt, cam, stops, camera, lms, setExplore, goStop, get activeStop() { return activeStop }, get total() { return total }, get pieces() { return pieces }, get trackTop() { return trackTop }, get explore() { return explore }, get dpr() { return dpr } };
   refresh(); measure();
   announce(S().live0);
   root.classList.add('vg-ready');
