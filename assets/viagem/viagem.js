@@ -10,7 +10,7 @@ const REGNAMES = ['', 'Minho', 'Trás-os-Montes', 'Douro Litoral', 'Beira', 'Est
 const REGCOL = ['', '#f0c4b8', '#efe09a', '#c9e0c0', '#f2d3a0', '#cddbef', '#e2d0ec', '#f3e5b0', '#f0b9a6'];
 const FOGPOS = { ep2: { lon: -7.55, lat: 39.95 } };
 // afastar o medalhão do monumento quando a lenda fica no mesmo sítio (Sintra: Pena), em unidades do mapa
-const PINOFF = { ep1: [-13, 4] };
+const PINOFF = { ep1: [-13, 4], ep3: [15, -2] };
 const POSES = ['idle', 'walk', 'point', 'wave', 'spy', 'write', 'cheer', 'think'];
 
 // Monumentos: lat/lon, largura no mundo, camada (1 = visível no mapa geral), texto PT/EN
@@ -80,7 +80,7 @@ void main(){ vUv=uv; vN=normal; vH=aH; vW=position; gl_Position=projectionMatrix
 
 const FRAG = `
 precision highp float;
-uniform sampler2D tSdf,tReg,tLines; uniform float uTime,uActive,uAnim; uniform vec3 uBg,uCam,uDeep; uniform vec4 uCl[6]; uniform vec3 uPal[10];
+uniform sampler2D tSdf,tReg,tLines,tFade; uniform float uTime,uActive,uAnim; uniform vec3 uBg,uCam,uDeep; uniform vec4 uCl[6]; uniform vec3 uPal[10];
 varying vec2 vUv; varying vec3 vN; varying float vH; varying vec3 vW;
 const vec3 INK=vec3(.169,.141,.094);
 float stroke(float q,float w){ float f=abs(fract(q)-.5); float a=fwidth(q)*1.4+.002; return 1.-smoothstep(w,w+a,f); }
@@ -104,7 +104,7 @@ void main(){
     vec4 e0=texture2D(tSdf,cu); float s0=(e0.r*255.-128.)/10.; float l0=1.-smoothstep(-.6,.6,s0);
     vec2 ov=vec2(abs(vUv.x-cu.x)*968.,abs(vUv.y-cu.y)*982.);
     float sd0=e0.g*255./2.4+length(ov)*.9;
-    vec3 oc=mix(seaCol(sd0),fogLand(),l0);
+    vec3 oc=seaCol(140.);
     gl_FragColor=vec4(mix(oc,uBg,far),1.); return;
   }
   vec4 sd=texture2D(tSdf,vUv); float s=(sd.r*255.-128.)/10.; float seaD=sd.g*255./2.4; float pt=sd.b;
@@ -142,7 +142,9 @@ void main(){
   float sh=0.; for(int i=0;i<6;i++){ vec4 q=uCl[i]; sh=max(sh,(1.-smoothstep(q.z*.55,q.z,length(vW.xz-q.xy)))*q.w); }
   col*=1.-.2*sh;
   float ed=min(min(vUv.x,1.-vUv.x),min(vUv.y,1.-vUv.y));
-  col=mix(mix(seaCol(seaD),fogLand(),landM),col,smoothstep(.0,.07,ed));
+  col=mix(col,seaCol(140.),smoothstep(.12,.8,texture2D(tFade,vUv).r)*landM);
+  float edu=min(min(vUv.x*968.,(1.-vUv.x)*968.),min(vUv.y*982.,(1.-vUv.y)*982.));
+  col=mix(seaCol(140.),col,smoothstep(0.,70.,edu));
   col=mix(col,uBg,far);
   gl_FragColor=vec4(col,1.);
 }`;
@@ -183,8 +185,8 @@ export async function initViagem(root, ctx) {
   if (reduced) root.classList.add('vg-static');
 
   // ---------- relevo
-  const [meta, imgTerrain, imgSdf, imgReg, imgLines] = await Promise.all([
-    fetch(base + 'meta.json').then(r => r.json()), loadImg(base + 'terrain.png'), loadImg(base + 'sdf.png'), loadImg(base + 'regions.png'), loadImg(base + 'lines.png')]);
+  const [meta, imgTerrain, imgSdf, imgReg, imgLines, imgFade] = await Promise.all([
+    fetch(base + 'meta.json').then(r => r.json()), loadImg(base + 'terrain.png'), loadImg(base + 'sdf.png'), loadImg(base + 'regions.png'), loadImg(base + 'lines.png'), loadImg(base + 'fade.png')]);
   const TW = meta.W, TH = meta.H, FW = meta.fw, FH = meta.fh;
   const tp = pixels(imgTerrain), rp = pixels(imgReg);
   const hs = new Float32Array(TW * TH), lmA = new Float32Array(TW * TH), reg = new Uint8Array(TW * TH);
@@ -225,7 +227,7 @@ export async function initViagem(root, ctx) {
   const mkTex = (img, o = {}) => { const t = new THREE.Texture(img); t.flipY = false; t.colorSpace = THREE.NoColorSpace; t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.magFilter = o.nearest ? THREE.NearestFilter : THREE.LinearFilter; t.minFilter = o.nearest ? THREE.NearestFilter : (o.mips ? THREE.LinearMipmapLinearFilter : THREE.LinearFilter); t.generateMipmaps = !!o.mips; t.anisotropy = o.mips ? 4 : 1; t.needsUpdate = true; return t; };
   const pal = ['#0b2230', ...REGCOL.slice(1), '#d9cfb0'].map(h => hex3(h, V3));
   const clouds = Array.from({ length: 6 }, () => new THREE.Vector4(0, 0, 60, 0));
-  const uni = { tSdf: { value: mkTex(imgSdf) }, tReg: { value: mkTex(imgReg, { nearest: true }) }, tLines: { value: mkTex(imgLines, { mips: true }) }, uTime: { value: 0 }, uAnim: { value: reduced ? 0 : 1 }, uActive: { value: 0 }, uBg: { value: new V3(BG.r, BG.g, BG.b) }, uDeep: { value: hex3('#2f7790', V3) }, uCam: { value: new V3() }, uCl: { value: clouds }, uPal: { value: pal } };
+  const uni = { tSdf: { value: mkTex(imgSdf) }, tReg: { value: mkTex(imgReg, { nearest: true }) }, tLines: { value: mkTex(imgLines, { mips: true }) }, tFade: { value: mkTex(imgFade) }, uTime: { value: 0 }, uAnim: { value: reduced ? 0 : 1 }, uActive: { value: 0 }, uBg: { value: new V3(BG.r, BG.g, BG.b) }, uDeep: { value: hex3('#2f7790', V3) }, uCam: { value: new V3() }, uCl: { value: clouds }, uPal: { value: pal } };
   const mat = new THREE.ShaderMaterial({ vertexShader: VERT, fragmentShader: FRAG, uniforms: uni, fog: false });
   scene.add(new THREE.Mesh(geo, mat));
   { // mar à volta do mapa, para nunca se ver o fim do mundo
@@ -307,8 +309,12 @@ export async function initViagem(root, ctx) {
   });
   const SEG = 70, pathPts = [];
   if (stops.length > 1) {
-    const curve = new THREE.CatmullRomCurve3(stops.map(s => new V3(s.x, 0, s.z)), false, 'centripetal'), N = SEG * (stops.length - 1);
-    for (let i = 0; i <= N; i++) { const p = curve.getPoint(i / N); pathPts.push([p.x, p.z]); }
+    // cada troço é um arco (Bézier) que dobra sempre para a esquerda de quem viaja: ida e volta ficam lado a lado, sem se sobrepor
+    for (let sg = 0; sg < stops.length - 1; sg++) {
+      const a = stops[sg], b = stops[sg + 1], dx = b.x - a.x, dz = b.z - a.z, L = Math.hypot(dx, dz), off = L > 40 ? Math.min(L * .22, 120) : 0;
+      const cx = (a.x + b.x) / 2 + (-dz / (L || 1)) * off, cz = (a.z + b.z) / 2 + (dx / (L || 1)) * off;
+      for (let i = sg ? 1 : 0; i <= SEG; i++) { const t = i / SEG, m = 1 - t; pathPts.push([m * m * a.x + 2 * m * t * cx + t * t * b.x, m * m * a.z + 2 * m * t * cz + t * t * b.z]); }
+    }
   }
   const pathAt = (seg, u) => { const f = clamp(u, 0, 1) * SEG, i = Math.min(Math.floor(f), SEG - 1), a = pathPts[seg * SEG + i], b = pathPts[seg * SEG + i + 1], t = f - i; return [lerp(a[0], b[0], t), lerp(a[1], b[1], t)]; };
   let pathMat = null, ghostMat = null;
@@ -353,9 +359,9 @@ export async function initViagem(root, ctx) {
     let pc = pieces[pieces.length - 1]; for (const c of pieces) if (px <= c.e) { pc = c; break; }
     // nos voos usa uma curva mais suave (smootherstep): sai devagar, voa a meio e abranda bem perto da lenda
     const t = clamp((px - pc.s) / Math.max(1, pc.e - pc.s), 0, 1), u = pc.k === 'fly' ? t * t * t * (t * (t * 6 - 15) + 10) : sstep(0, 1, t), W0 = WP[0], last = WP[WP.length - 1];
-    if (pc.k === 'intro') return { x: 0, z: 0, d: lerp(W0.d * 1.55, W0.d, u), p: lerp(62, W0.p, u), h: lerp(16, 0, u), stop: 0, mode: 'intro', t };
+    if (pc.k === 'intro') return { x: 0, z: 0, d: lerp(W0.d * 1.3, W0.d, u), p: lerp(56, W0.p, u), h: lerp(16, 0, u), stop: 0, mode: 'intro', t };
     if (pc.k === 'hold') { const w = WP[pc.i]; return { x: w.x, z: w.z, d: w.d, p: w.p, h: w.h, stop: pc.i, mode: 'hold', t }; }
-    if (pc.k === 'outro') return { x: lerp(last.x, 0, u), z: lerp(last.z, 0, u), d: lerp(last.d, W0.d * 1.4, u), p: lerp(last.p, 58, u), h: lerp(last.h, -12, u), stop: 0, mode: 'outro', t };
+    if (pc.k === 'outro') return { x: lerp(last.x, 0, u), z: lerp(last.z, 0, u), d: lerp(last.d, W0.d * 1.2, u), p: lerp(last.p, 52, u), h: lerp(last.h, -12, u), stop: 0, mode: 'outro', t };
     const a = WP[pc.i - 1], b = WP[pc.i], xz = pc.i >= 2 && pathPts.length ? pathAt(pc.i - 2, u) : [lerp(a.x, b.x, u), lerp(a.z, b.z, u)];
     const arc = Math.hypot(a.x - b.x, a.z - b.z) * .5 + 80;
     return { x: xz[0], z: xz[1], d: lerp(a.d, b.d, u) + Math.sin(Math.PI * u) * arc, p: lerp(a.p, b.p, u) - Math.sin(Math.PI * u) * 6, h: lerp(a.h, b.h, u), stop: 0, mode: 'fly', pseg: pc.i >= 2 ? pc.i - 2 : -1, t, u };
@@ -369,7 +375,7 @@ export async function initViagem(root, ctx) {
   meta.cities.forEach(c => { const p = svgToW(c.x, c.y); if (stops.some(s => Math.hypot(s.x - p[0], s.z - p[1]) < 18)) return; mkL('vcity' + (c.big ? ' big' : ''), `<i></i><span>${c.n}</span>`, { x: p[0], z: p[1], dmax: c.big ? 760 : 300, pri: c.big ? 2 : 3 }); });
   meta.capes.forEach(c => { const p = svgToW(c[1], c[2]); mkL('vcape', `<span>${c[0]}</span>`, { x: p[0], z: p[1], dmax: 380, pri: 4 }); });
   meta.regs.forEach(r => { const p = svgToW(r[1], r[2]); mkL('vreg', `<span>${r[0]}</span>`, { x: p[0], z: p[1], dmin: 520, dmax: 2300, lift: 4, pri: 5 }); });
-  const ocL = mkL('vsea', '', { x: -286, z: 70, dmin: 300, dmax: 2600, pri: 6 }), esL = mkL('vsea', '', { x: 322, z: 150, dmin: 480, dmax: 2600, pri: 6 });
+  const ocL = mkL('vsea', '', { x: -286, z: 70, dmin: 300, dmax: 2600, pri: 6 }), esL = mkL('vsea', '', { x: 250, z: 150, dmin: 480, dmax: 2600, pri: 6 });
 
   // medalhões das lendas: desenhados dentro da cena 3D (sprites com profundidade, como os monumentos)
   // o botão invisível por cima mantém o clique, o teclado e o leitor de ecrã

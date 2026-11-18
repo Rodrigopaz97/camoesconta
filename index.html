@@ -331,7 +331,7 @@ footer .q{font-family:var(--serif-d);font-style:italic;color:var(--ouro);font-si
 </style>
 
 <script>try{var vc=document.createElement("canvas"),vg=vc.getContext("webgl2");if(vg){document.documentElement.className+=" vg";var vx=vg.getExtension("WEBGL_lose_context");vx&&vx.loseContext()}else document.documentElement.className+=" vgfail"}catch(e){document.documentElement.className+=" vgfail"}</script>
-<link rel="stylesheet" href="assets/viagem/viagem.css?v=23">
+<link rel="stylesheet" href="assets/viagem/viagem.css?v=24">
 <link rel="stylesheet" href="assets/skin/skin.css?v=11b">
 <link rel="stylesheet" href="assets/skin/fontes_perg.css?v=11d">
 <style>.skiplnk{position:absolute;left:12px;top:-80px;z-index:10000;background:#d6ab4f;color:#1a1405;padding:10px 18px;border-radius:10px;font-weight:700;text-decoration:none;transition:top .15s}.skiplnk:focus{top:34px}main:focus{outline:0}a:focus-visible,button:focus-visible,[role=button]:focus-visible{outline:3px solid var(--ouro);outline-offset:3px}.mapgrid .mapcta{grid-column:1;grid-row:2}.mapgrid .mside{grid-column:2;grid-row:1/span 2}@media(max-width:52rem){.mapgrid .mapcta,.mapgrid .mside{grid-column:1;grid-row:auto}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}</style>
@@ -560,7 +560,7 @@ window.CC_ANALYTICS={cf:"80b17b82a9544f38812c517430c0a44e",gc:""};
   var EPS=[
    {id:"ep1",n:1,pub:true,region:"lisboa",lat:38.80,lon:-9.38,yt:"https://www.youtube.com/shorts/TbC5LKBwckk"},
    {id:"ep2",n:2,pub:true,date:"2026-11-18T09:00:00Z",region:"",yt:"https://www.youtube.com/shorts/0LZRqp5AQ7E"},
-   {id:"ep3",n:3,date:"2026-11-25T09:00:00Z",region:"",yt:""}
+   {id:"ep3",n:3,date:"2026-11-25T09:00:00Z",region:"lisboa",lat:38.7966,lon:-9.3956,yt:""}
   ];
   /* ===== EPISÓDIOS: textos por idioma ===== */
   var TXT={
@@ -592,7 +592,7 @@ window.CC_ANALYTICS={cf:"80b17b82a9544f38812c517430c0a44e",gc:""};
      q2:"Would you trust the lady of the rock? Yes or no?",
      src:["<i>Livro de Linhagens do Conde D. Pedro</i> (Book of Lineages of Count Pedro Afonso), c. 1340.","Alexandre Herculano, <i>Lendas e Narrativas</i>."]}
    },
-   ep3:{pt:{t:"A Quinta da Regaleira",place:"",teaser:"Um poço que desce ao coração de Sintra.",line:"Um poço que desce ao coração de Sintra.",sub:"Um poço que desce ao coração de Sintra.",chips:[],s:[],q2:"",src:[]},en:{t:"Quinta da Regaleira",place:"",teaser:"A well that descends into the heart of Sintra.",line:"A well that descends into the heart of Sintra.",sub:"A well that descends into the heart of Sintra.",chips:[],s:[],q2:"",src:[]}}
+   ep3:{pt:{t:"A Quinta da Regaleira",place:"Sintra",teaser:"Um poço que desce ao coração de Sintra.",line:"Um poço que desce ao coração de Sintra.",sub:"Um poço que desce ao coração de Sintra.",chips:[],s:[],q2:"",src:[]},en:{t:"Quinta da Regaleira",place:"Sintra",teaser:"A well that descends into the heart of Sintra.",line:"A well that descends into the heart of Sintra.",sub:"A well that descends into the heart of Sintra.",chips:[],s:[],q2:"",src:[]}}
   };
   var BY={};EPS.forEach(function(e){BY[e.id]=e});
   function tx(e){var o=TXT[e.id],a=o[lang]||{},b=o.pt,r={};for(var k in b)r[k]=b[k];for(var k2 in a)r[k2]=a[k2];return r}
@@ -806,7 +806,7 @@ window.CC_ANALYTICS={cf:"80b17b82a9544f38812c517430c0a44e",gc:""};
   var go=false,inst=null;
   function load(){
     if(go)return;go=true;
-    import("./assets/viagem/viagem.js?v=22").then(function(m){return m.initViagem(sec,window.__CC)})
+    import("./assets/viagem/viagem.js?v=24").then(function(m){return m.initViagem(sec,window.__CC)})
       .then(function(i){inst=i})
       .catch(function(e){console.warn("viagem",e);fb()});
   }
