@@ -210,6 +210,22 @@ footer .q{font-family:var(--serif-d);font-style:italic;color:var(--ouro);font-si
   .row1{flex-wrap:wrap}.lead{display:none}.where{width:100%;margin-top:2px;font-size:17px}
   .upc{flex-wrap:wrap}.upc small{width:100%;padding-left:48px}
 }
+
+/* carrossel de episódios (3 por página) */
+.epcar{position:relative}
+.eptrack{display:flex;align-items:flex-start;transition:height .3s;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+.eptrack::-webkit-scrollbar{display:none}
+.eppage{flex:0 0 100%;scroll-snap-align:start;border-top:1px solid var(--regua);min-width:0}
+.epnav{display:flex;align-items:center;justify-content:center;gap:18px;padding:18px 0 0}
+.epnav button{font:inherit;cursor:pointer;color:var(--ouro);background:transparent;border:1px solid var(--ouro-esc);width:44px;height:44px;border-radius:50%;font-size:22px;line-height:1;display:grid;place-items:center;transition:background .2s,color .2s}
+.epnav button:hover:not(:disabled),.epnav button:focus-visible{background:var(--ouro);color:#1a1405}
+.epnav button:disabled{opacity:.3;cursor:default}
+.epdots{display:flex;gap:10px}
+.epdots button{width:12px;height:12px;min-width:0;padding:0;border-radius:50%;border:1px solid var(--ouro-esc);background:transparent;position:relative}
+.epdots button::after{content:"";position:absolute;inset:-16px -6px}
+.epdots button[aria-current=true]{background:var(--ouro);border-color:var(--ouro)}
+.epcount{font-style:italic;color:var(--suave);font-size:17px;min-width:5.5em;text-align:center}
+@media(prefers-reduced-motion:reduce){.eptrack{scroll-behavior:auto}}
 @media(prefers-reduced-motion:reduce){.flip,.cover.flipc{transition:none}.pin.sel .ring{animation:none;opacity:.6}}
 /* v4: mapa ilustrado */
 .rg{font-size:34px;letter-spacing:6px;fill:#5b3b1c;opacity:.5;pointer-events:none}
@@ -319,6 +335,22 @@ footer .q{font-family:var(--serif-d);font-style:italic;color:var(--ouro);font-si
 <link rel="stylesheet" href="assets/skin/skin.css?v=11b">
 <link rel="stylesheet" href="assets/skin/fontes_perg.css?v=11d">
 <style>.skiplnk{position:absolute;left:12px;top:-80px;z-index:10000;background:#d6ab4f;color:#1a1405;padding:10px 18px;border-radius:10px;font-weight:700;text-decoration:none;transition:top .15s}.skiplnk:focus{top:34px}main:focus{outline:0}a:focus-visible,button:focus-visible,[role=button]:focus-visible{outline:3px solid var(--ouro);outline-offset:3px}.mapgrid .mapcta{grid-column:1;grid-row:2}.mapgrid .mside{grid-column:2;grid-row:1/span 2}@media(max-width:52rem){.mapgrid .mapcta,.mapgrid .mside{grid-column:1;grid-row:auto}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}</style>
+<script>
+/* Analytics sem cookies. Preencher os códigos para ativar (só corre fora de localhost).
+   cf: token do Cloudflare Web Analytics; gc: nome do site no GoatCounter (xxx em xxx.goatcounter.com). */
+window.CC_ANALYTICS={cf:"80b17b82a9544f38812c517430c0a44e",gc:""};
+(function(){
+  var A=window.CC_ANALYTICS,host=location.hostname;
+  window.track=function(name,props){try{
+    var p=props?Object.keys(props).map(function(k){return props[k]}).join("/"):"";
+    if(window.goatcounter&&goatcounter.count)goatcounter.count({path:"evento/"+name+(p?"/"+p:""),title:name+(p?" "+p:""),event:true});
+  }catch(e){}};
+  if(/^(localhost|127\.0\.0\.1|\[::1\])$/.test(host)||/\.localhost$/.test(host))return;
+  function add(src,attrs){var s=document.createElement("script");s.defer=true;s.src=src;for(var k in attrs)s.setAttribute(k,attrs[k]);document.head.appendChild(s)}
+  if(A.cf)add("https://static.cloudflareinsights.com/beacon.min.js",{"data-cf-beacon":'{"token":"'+A.cf+'","spa":true}'});
+  if(A.gc){window.goatcounter={no_onload:false,endpoint:"https://"+A.gc+".goatcounter.com/count"};add("https://gc.zgo.at/count.js",{"data-goatcounter":"https://"+A.gc+".goatcounter.com/count"})}
+})();
+</script>
 </head>
 <body>
 <a class="skiplnk" href="#home" data-i18n="skip_main"></a>
@@ -474,7 +506,7 @@ footer .q{font-family:var(--serif-d);font-style:italic;color:var(--ouro);font-si
     src3_h:"Mistério, não terror",src3_p:"Histórias para ver com a família. Sem sangue e sem sustos fáceis.",
     rule1:"Animação 3D feita com ferramentas de inteligência artificial, com argumento, revisão e montagem humanos.",
     rule2:"Português de Portugal, vertical, cerca de um minuto por episódio.",
-    foot_q:"Eu sou Camões, e hoje contei-vos mais uma história de Portugal!",foot_r:"Camões Conta, lendas de Portugal",foot_c:"© 2026 Camões Conta™. Todos os direitos reservados.",foot_l:"O Luís de Camões tal como aparece aqui, as animações, ilustrações, textos, o mapa e o desenho do site são obra original do Camões Conta. Não é permitido copiar, reproduzir, modificar, republicar ou usar para treinar sistemas de inteligência artificial sem autorização escrita. Pode partilhar as ligações do site e dos vídeos.",
+    foot_q:"Eu sou Camões, e hoje contei-vos mais uma história de Portugal!",foot_r:"Camões Conta, lendas de Portugal",foot_c:"© 2026 Camões Conta™. Todos os direitos reservados.",foot_l:"O Luís de Camões tal como aparece aqui, as animações, ilustrações, textos, o mapa e o desenho do site são obra original do Camões Conta. Não é permitido copiar, reproduzir, modificar, republicar ou usar para treinar sistemas de inteligência artificial sem autorização escrita. Pode partilhar as ligações do site e dos vídeos. Este site usa estatísticas anónimas, sem cookies.",
     tag_ep:"Episódio {n}",tag_soon:"Em breve",
     read_more:"Ler a história completa",see_date:"Ver a data de estreia",cover_alt:"Capa do episódio {n}: {t}",
     at:"às ",hour:"9h",back:"Todos os episódios",
@@ -507,7 +539,7 @@ footer .q{font-family:var(--serif-d);font-style:italic;color:var(--ouro);font-si
     src3_h:"Mystery, not horror",src3_p:"Stories to watch with the family. No blood and no cheap scares.",
     rule1:"3D animation made with artificial intelligence tools, with human scripting, review and editing.",
     rule2:"European Portuguese, vertical format, about one minute per episode.",
-    foot_q:"I'm Camões, and today I told you one more story from Portugal!",foot_r:"Camões Conta, legends of Portugal",foot_c:"© 2026 Camões Conta™. All rights reserved.",foot_l:"Luís de Camões as shown here, the animations, illustrations, texts, the map and the site design are original work by Camões Conta. Copying, reproducing, modifying, republishing or using them to train artificial intelligence systems is not permitted without written permission. You are welcome to share links to the site and the videos.",
+    foot_q:"I'm Camões, and today I told you one more story from Portugal!",foot_r:"Camões Conta, legends of Portugal",foot_c:"© 2026 Camões Conta™. All rights reserved.",foot_l:"Luís de Camões as shown here, the animations, illustrations, texts, the map and the site design are original work by Camões Conta. Copying, reproducing, modifying, republishing or using them to train artificial intelligence systems is not permitted without written permission. You are welcome to share links to the site and the videos. This site uses anonymous statistics, without cookies.",
     tag_ep:"Episode {n}",tag_soon:"Coming soon",
     read_more:"Read the full story",see_date:"See the premiere date",cover_alt:"Cover of episode {n}: {t}",
     at:"",hour:"9 AM",back:"All episodes",
@@ -604,18 +636,40 @@ footer .q{font-family:var(--serif-d);font-style:italic;color:var(--ouro);font-si
   var ROM=["","I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII","XIII","XIV","XV","XVI","XVII","XVIII","XIX","XX"];
   function rom(n){return ROM[n]||String(n)}
   function home(){
-    var g=document.getElementById("epgrid"),u=document.getElementById("upgrid"),h="",uh="",nx=nextUp();
+    var g=document.getElementById("epgrid"),u=document.getElementById("upgrid"),items=[],uh="",nx=nextUp(),h="",newest=0;
     EPS.forEach(function(e){
       var x=tx(e),alt=T("cover_alt",{n:e.n,t:x.t});
       if(out(e)){
-        h+='<article class="ep" data-go="'+e.id+'"><span class="num">'+rom(e.n)+'</span><img alt="'+alt+'" src="'+COV[e.id]+'"><div class="body"><div class="row1"><h3><a class="cl" href="#'+e.id+'">'+x.t+'</a></h3><span class="lead"></span><span class="where">'+(x.place||T("tbc"))+'</span></div><p>'+x.line+'</p><a class="more" href="#'+e.id+'">'+T("read_more")+'</a></div></article>';
+        newest=items.length;
+        items.push('<article class="ep" data-go="'+e.id+'"><span class="num">'+rom(e.n)+'</span><img alt="'+alt+'" src="'+COV[e.id]+'"><div class="body"><div class="row1"><h3><a class="cl" href="#'+e.id+'">'+x.t+'</a></h3><span class="lead"></span><span class="where">'+(x.place||T("tbc"))+'</span></div><p>'+x.line+'</p><a class="more" href="#'+e.id+'">'+T("read_more")+'</a></div></article>');
       }else if(nx&&e.id===nx.id){
-        h+='<article class="ep is-next" data-go="'+e.id+'"><span class="num">'+rom(e.n)+'</span><img alt="'+alt+'" src="'+(COV[e.id]||"")+'"><div class="body"><div class="row1"><h3><a class="cl" href="#'+e.id+'">'+x.t+'</a></h3><span class="lead"></span><span class="where">'+T("premiere")+' '+dshort(e)+'</span></div><p>'+x.teaser+'</p><a class="more" href="#'+e.id+'">'+T("see_date")+'</a></div></article>';
+        items.push('<article class="ep is-next" data-go="'+e.id+'"><span class="num">'+rom(e.n)+'</span><img alt="'+alt+'" src="'+(COV[e.id]||"")+'"><div class="body"><div class="row1"><h3><a class="cl" href="#'+e.id+'">'+x.t+'</a></h3><span class="lead"></span><span class="where">'+T("premiere")+' '+dshort(e)+'</span></div><p>'+x.teaser+'</p><a class="more" href="#'+e.id+'">'+T("see_date")+'</a></div></article>');
       }else{
         uh+='<a class="upc" href="#'+e.id+'"><span class="num">'+rom(e.n)+'</span><b>'+x.t+'</b><span class="lead"></span><small>'+dshort(e)+'</small></a>';
       }
     });
-    g.innerHTML=h;u.innerHTML=uh;
+    var PER=3,np=Math.ceil(items.length/PER);
+    if(np<=1){g.className="eps";g.innerHTML=items.join("")}
+    else{
+      var L={pt:["Episódios anteriores e seguintes","Anterior","Seguinte","Episódios","de"],en:["More episodes","Previous","Next","Episodes","of"],hu:["További epizódok","Előző","Következő","Epizódok","/"]}[lang]||[];
+      var pg="";for(var i=0;i<np;i++){pg+='<div class="eppage" role="group" aria-label="'+L[3]+' '+(i*PER+1)+'-'+Math.min(items.length,(i+1)*PER)+'">'+items.slice(i*PER,(i+1)*PER).join("")+'</div>'}
+      var dots="";for(var d=0;d<np;d++)dots+='<button type="button" data-p="'+d+'" aria-label="'+L[3]+' '+(d*PER+1)+'-'+Math.min(items.length,(d+1)*PER)+'"></button>';
+      g.className="epcar";g.setAttribute("role","region");g.setAttribute("aria-label",L[0]);
+      g.innerHTML='<div class="eptrack" id="eptrack">'+pg+'</div><div class="epnav"><button type="button" class="epprev" aria-label="'+L[1]+'">&#8592;</button><span class="epdots">'+dots+'</span><button type="button" class="epnext" aria-label="'+L[2]+'">&#8594;</button></div>';
+      var tr=g.querySelector(".eptrack"),pv=g.querySelector(".epprev"),nxb=g.querySelector(".epnext"),db=g.querySelectorAll(".epdots button");
+      var cur=(window.__epPage!=null&&window.__epPage<np)?window.__epPage:Math.floor(newest/PER);
+      function mark(){var i=Math.round(tr.scrollLeft/Math.max(1,tr.clientWidth));i=Math.max(0,Math.min(np-1,i));window.__epPage=i;var pgs=tr.querySelectorAll('.eppage');if(pgs[i])tr.style.height=pgs[i].offsetHeight+'px';pv.disabled=i===0;nxb.disabled=i===np-1;Array.prototype.forEach.call(db,function(b,k){b.setAttribute("aria-current",k===i?"true":"false")})}
+      function go(i,smooth){i=Math.max(0,Math.min(np-1,i));tr.scrollTo({left:i*tr.clientWidth,behavior:smooth?"smooth":"auto"});if(!smooth)mark()}
+      tr.addEventListener("scroll",function(){clearTimeout(tr._t);tr._t=setTimeout(mark,60)},{passive:true});
+      pv.addEventListener("click",function(){go(Math.round(tr.scrollLeft/tr.clientWidth)-1,true);track("eps_carousel",{dir:"prev"})});
+      nxb.addEventListener("click",function(){go(Math.round(tr.scrollLeft/tr.clientWidth)+1,true);track("eps_carousel",{dir:"next"})});
+      Array.prototype.forEach.call(db,function(b){b.addEventListener("click",function(){go(+b.getAttribute("data-p"),true);track("eps_carousel",{dir:"dot"})})});
+      tr.addEventListener("keydown",function(ev){if(ev.key==="ArrowRight"){go(Math.round(tr.scrollLeft/tr.clientWidth)+1,true)}else if(ev.key==="ArrowLeft"){go(Math.round(tr.scrollLeft/tr.clientWidth)-1,true)}});
+      tr.tabIndex=0;
+      if(tr.clientWidth)go(cur,false);else{mark();(window.__epInit=function(){var t=document.getElementById("eptrack");if(t&&t.clientWidth)t.scrollTo({left:cur*t.clientWidth,behavior:"auto"})});}
+      addEventListener("resize",function(){var t=document.getElementById("eptrack");if(t){t.scrollTo({left:(window.__epPage||0)*t.clientWidth,behavior:"auto"});var q=t.querySelectorAll(".eppage")[window.__epPage||0];if(q)t.style.height=q.offsetHeight+"px"}});
+    }
+    u.innerHTML=uh;
     Array.prototype.forEach.call(g.querySelectorAll(".ep"),function(c){c.addEventListener("click",function(ev){if(ev.target.closest("a"))return;location.hash=c.getAttribute("data-go")})});
     var sub=document.querySelector("#episodios .sub3"),lede=u.previousElementSibling;
     sub.style.display=uh?"":"none";if(lede)lede.style.display=uh?"":"none";
@@ -710,6 +764,15 @@ footer .q{font-family:var(--serif-d);font-style:italic;color:var(--ouro);font-si
 
   window.__CC={EPS:EPS,COV:COV,MAPA:MAPA,T:T,tx:tx,out:out,placeLine:placeLine,dshort:dshort,when:when,lang:function(){return lang}};
   langUI();
+  document.addEventListener("click",function(ev){var t=ev.target.closest&&ev.target.closest("a,button,[data-go]");if(!t||!window.track)return;
+    var h=t.getAttribute&&t.getAttribute("href")||"",c=t.className||"";
+    if(t.classList.contains("playbtn"))track("ver_aqui",{ep:(location.hash||"").slice(1)});
+    else if(/youtube\.com\/@/.test(h))track("subscrever_youtube");
+    else if(/youtube\.com\/shorts/.test(h))track("ver_no_youtube",{ep:(location.hash||"").slice(1)});
+    else if(/instagram\.com/.test(h))track("instagram");
+    else if(/^#ep\d+$/.test(h))track("abrir_episodio",{ep:h.slice(1)});
+    else if(/^livro\//.test(h))track("abrir_livro");
+  },true);
   lang=initialLang();
   applyStatic();
   addEventListener("hashchange",function(){route()});route();
