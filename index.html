@@ -442,7 +442,7 @@ footer .q{font-family:var(--serif-d);font-style:italic;color:var(--ouro);font-si
 <script>
 (function(){
   var CH="https://www.youtube.com/@Cam%C3%B5esConta";
-  var COV={ep1:"assets/img/capa_ep1.jpg",ep2:"assets/img/capa_ep2.jpg"};
+  var COV={ep1:"assets/img/capa_ep1.jpg",ep2:"assets/img/capa_ep2.jpg",ep3:"assets/img/capa_ep3.jpg"};
   /* imagens do mapa 3D: painel 16:9 (t) e medalhão quadrado (m), sem texto */
   var MAPA={ep1:{t:"assets/img/mapa_ep1.webp",m:"assets/img/mapa_ep1_medalhao.webp"},ep2:{t:"assets/img/mapa_ep2.webp",m:"assets/img/mapa_ep2_medalhao.webp"}};
   var TZ="Europe/Lisbon";
@@ -527,7 +527,8 @@ footer .q{font-family:var(--serif-d);font-style:italic;color:var(--ouro);font-si
   /* ===== EPISÓDIOS: dados comuns ===== */
   var EPS=[
    {id:"ep1",n:1,pub:true,region:"lisboa",lat:38.80,lon:-9.38,yt:"https://www.youtube.com/shorts/TbC5LKBwckk"},
-   {id:"ep2",n:2,pub:true,date:"2026-11-18T09:00:00Z",region:"",yt:"https://www.youtube.com/shorts/0LZRqp5AQ7E"}
+   {id:"ep2",n:2,pub:true,date:"2026-11-18T09:00:00Z",region:"",yt:"https://www.youtube.com/shorts/0LZRqp5AQ7E"},
+   {id:"ep3",n:3,date:"2026-11-25T09:00:00Z",region:"",yt:""}
   ];
   /* ===== EPISÓDIOS: textos por idioma ===== */
   var TXT={
@@ -558,7 +559,8 @@ footer .q{font-family:var(--serif-d);font-style:italic;color:var(--ouro);font-si
       ["What we know and what we don't","<ul><li>The legend is medieval and has a written version. That does not make it historical fact.</li><li>The idea of a supernatural woman who marries a mortal and vanishes when a rule is broken exists in many European cultures.</li><li>Those who tell it today add or drop details. Here we follow the essentials of the written sources.</li></ul>"]],
      q2:"Would you trust the lady of the rock? Yes or no?",
      src:["<i>Livro de Linhagens do Conde D. Pedro</i> (Book of Lineages of Count Pedro Afonso), c. 1340.","Alexandre Herculano, <i>Lendas e Narrativas</i>."]}
-   }
+   },
+   ep3:{pt:{t:"A Quinta da Regaleira",place:"",teaser:"Um poço que desce ao coração de Sintra.",line:"Um poço que desce ao coração de Sintra.",sub:"Um poço que desce ao coração de Sintra.",chips:[],s:[],q2:"",src:[]},en:{t:"Quinta da Regaleira",place:"",teaser:"A well that descends into the heart of Sintra.",line:"A well that descends into the heart of Sintra.",sub:"A well that descends into the heart of Sintra.",chips:[],s:[],q2:"",src:[]}}
   };
   var BY={};EPS.forEach(function(e){BY[e.id]=e});
   function tx(e){var o=TXT[e.id],a=o[lang]||{},b=o.pt,r={};for(var k in b)r[k]=b[k];for(var k2 in a)r[k2]=a[k2];return r}
